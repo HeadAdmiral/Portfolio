@@ -1,1 +1,1 @@
-echo web: npm run serve >Procfile
+web: npm run serve
