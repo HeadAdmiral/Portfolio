@@ -14,12 +14,12 @@
             </v-card-title>
             <v-card-actions>
               <v-btn flat @click=setURL(project.repo)>GitHub</v-btn>
-              <v-btn flat color="accent">Explore</v-btn>
+              <v-btn flat @click=setURL(project.demo) color="accent">Explore</v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
       </div>
-      <v-btn fixed fab right bottom class="mx-5 my-4 accent" v-if="edit.allow === true" router :to="edit.route">
+      <v-btn fixed fab right bottom class="mx-5 my-4 accent" v-if="edit.allow === true" router :to="edit.route"  transition="fade-transition">
         <v-icon>add</v-icon>
       </v-btn>
     </v-layout>
@@ -27,31 +27,15 @@
 </template>
 
 <script>
-
+  import database from '@/components/firebaseInit.js'
   export default {
       data() {
-          let projects = [
-              { title: 'Commission Calculator',
-                  desc: 'Estimates hourly wage for commission-based employees using user-provided sales information.',
-                  src: require('@/img/commission-calculator.jpg'),
-                  position: 'center center',
-                  repo: 'https://github.com/HeadAdmiral/Commission-Calculator',
-                  url: 'https://amastin-microcenter.github.io/Commission-Calculator/'
-              },
-
-              { title: 'Customer Queue',
-                  desc: 'Professional customer-facing utility meant for queueing customers when a salesperson is not currently available.',
-                  src: require('@/img/customer-queue.jpg'),
-                  position: 'center top',
-                  repo: 'https://github.com/HeadAdmiral/Customer-Queue',
-                  url: 'https://amastin-microcenter.github.io/Customer-Queue/'
-              },
-          ]
+          let projects =  this.getProjects();
           return {
               projects,
               opts: {
-                  timeout: 3000,
-                  chain: '38-38-40-40-37-39-37-39-66-65'
+                  timeout: 3000, // controls how long (in ms) you have to enter the chain correctly
+                  chain: '38-38-40-40-37-39-37-39-66-65' // up-up-down-down-left-right-left-right-b-a
               },
               edit: {
                   allow: false,
@@ -66,6 +50,18 @@
           easterEgg: function() {
               this.edit.allow = true;
           },
+          getProjects: function() {
+              let docs = [];
+              // Query database for projects collection
+              database.collection('projects').get()
+                  .then(function(querySnapshot) {
+                    querySnapshot.forEach(function(doc) {
+                        // add each document to the array
+                        docs.push(doc.data())
+                    });
+                  });
+              return docs;
+          }
 
       }
   }

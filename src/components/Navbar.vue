@@ -1,6 +1,6 @@
 <template>
     <nav>
-        <v-toolbar app dark>
+        <v-toolbar app dark v-if="this.$route.name !== 'Home'">
             <v-toolbar-side-icon class="grey--text" @click="drawer = !drawer"></v-toolbar-side-icon>
             <v-toolbar-title>
                 <span class="">{{ this.$route.name }}</span>
@@ -9,7 +9,7 @@
 
         <v-navigation-drawer v-model="drawer" app class="white lighten--4">
             <v-list>
-                <v-list-tile v-for="link in links" :key="link.text" router :to="link.route">
+                <v-list-tile @click="drawer = !drawer" v-for="link in links" :key="link.text" router :to="link.route">
                     <v-list-tile-action>
                         <v-icon class="secondary--text">{{ link.icon }}</v-icon>
                     </v-list-tile-action>
@@ -31,7 +31,7 @@
                 links: [
                     { icon: 'home', text: 'Home', route: '/' },
                     { icon: 'code', text: 'Projects', route: '/projects' },
-                    { icon: 'accessible', text: 'About', route: '/about'}
+                    { icon: 'info', text: 'About', route: '/about'}
                 ]
             }
         }

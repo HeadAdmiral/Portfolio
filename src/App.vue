@@ -16,7 +16,7 @@
         components: {Navbar},
         data() {
             return {
-                //
+
             }
         }
     }
