@@ -1,10 +1,10 @@
 <template>
     <div>
         <v-layout align-center justify-center column fill-height >
-            <v-flex my-3>
+            <v-flex my-3 >
                 <v-card width="1000" class="pa-4" transition="slide-y-transition">
-                    <v-card-title primary-title class="headline">New Project</v-card-title>
-                    <v-form ref="form" v-model="valid" lazy-validation>
+                    <v-card-title primary-title class="headline">Edit Project</v-card-title>
+                    <v-form ref="form" v-model="valid" lazy-validation v-for="n in project" :key="n.id">
                         <v-text-field
                                 v-model="preview"
                                 :rules="previewRules"
@@ -12,6 +12,8 @@
                                 clearable
                                 required
                                 color="accent"
+                                :value="n.src"
+                                :change="updateSrc(n.src)"
                         ></v-text-field>
                         <v-select
                                 v-model="position"
@@ -20,6 +22,8 @@
                                 label="Image Position"
                                 required
                                 color="accent"
+                                :item-value="n.position"
+                                :change="updatePosition(n.position)"
                         ></v-select>
                         <v-text-field
                                 v-model="title"
@@ -29,6 +33,8 @@
                                 clearable
                                 required
                                 color="accent"
+                                :value="n.title"
+                                :change="updateTitle(n.title)"
                         ></v-text-field>
                         <v-text-field
                                 v-model="desc"
@@ -37,6 +43,8 @@
                                 clearable
                                 required
                                 color="accent"
+                                :value="n.desc"
+                                :change="updateDesc(n.desc)"
                         ></v-text-field>
                         <v-text-field
                                 v-model="repo"
@@ -45,6 +53,8 @@
                                 clearable
                                 required
                                 color="accent"
+                                :value="n.repo"
+                                :change="updateRepo(n.repo)"
                         ></v-text-field>
                         <v-text-field
                                 v-model="demo"
@@ -53,8 +63,10 @@
                                 clearable
                                 required
                                 color="accent"
+                                :value="n.demo"
+                                :change="updateDemo(n.demo)"
                         ></v-text-field>
-                        <v-btn @click=submit color="accent">submit</v-btn>
+                        <v-btn @click=submit color="accent">update</v-btn>
                         <v-btn @click=clear>clear</v-btn>
                     </v-form>
                 </v-card>
@@ -68,43 +80,76 @@
     import database from '@/components/firebaseInit.js'
     export default {
         name: "NewProject",
-        data: () => ({
-            valid: true,
-            title: '',
-            preview: '',
-            previewRules: [
+        data() {
+
+            let valid = true;
+            let title = '';
+            let preview = '';
+            let previewRules = [
                 v => !!v || 'Image is Required',
                 v => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/.test(v) || 'URL must be valid'
-            ],
-            position: '',
-            positionRules: [
+            ];
+            let position = '';
+            let positionRules = [
                 v => !!v || 'Position is Required'
-            ],
-            titleRules: [
+            ];
+            let titleRules = [
                 v => !!v || 'Name is Required'
-            ],
-            desc: '',
-            descRules: [
+            ];
+            let desc = '';
+            let descRules = [
                 v => !!v || 'Description is Required'
-            ],
-            repo: '',
-            repoRules: [
+            ];
+            let repo = '';
+            let repoRules = [
                 v => !!v || 'Repository is Required',
                 v => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/.test(v) || 'URL must be valid'
-            ],
-            demo: '',
-            demoRules: [
+            ];
+            let demo = '';
+            let demoRules = [
                 v => !!v || 'Demo is Required',
                 v => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/.test(v) || 'URL must be valid'
-            ],
-            items: [
+            ];
+            let items = [
                 'center top',
                 'center center',
                 'center bottom'
-            ]
-        }),
+            ];
+            let project = this.getProject();
+            let projectDetails = {};
+            return {
+                valid,
+                title,
+                preview,
+                previewRules,
+                position,
+                positionRules,
+                titleRules,
+                desc,
+                descRules,
+                repo,
+                repoRules,
+                demo,
+                demoRules,
+                items,
+                project,
+                projectDetails
+            }
+        },
         methods: {
-            submit: function() {
+            getProject() {
+                let docs = [];
+                // Query database for projects collection
+                database.collection('projects').where("id", "==", this.$route.params.id).get()
+                    .then(function(querySnapshot) {
+                        querySnapshot.forEach(function(doc) {
+                            // add each document to the array
+                            docs.push(doc.data())
+                        });
+                    });
+                return docs;
+            },
+            submit() {
                 if (this.$refs.form.validate()) {
                     let docID = this.getID();
                     database.collection('projects').doc(docID).set({
@@ -117,21 +162,36 @@
                         id: docID
                     })
                         .then(function() {
-                            console.log('Document successfully created.');
+                            console.log('Document successfully updated.');
                             alert('Project successfully created.');
                         })
                         .catch(function(error) {
                             console.error('Error adding document: ', error);
-                            alert('An error has occurred while attempting to save to the database.')
+                            alert('An error has occurred while attempting to update the database.')
                         });
                     this.clear();
                 }
             },
-            clear: function() {
-                this.$refs.form.reset();
+            clear() {
+                this.$refs.form[0].reset();
             },
-            getID: function() {
-                return String(new Date().getTime())
+            updateSrc(val) {
+                this.preview = val;
+            },
+            updatePosition(val) {
+                this.position = val;
+            },
+            updateTitle(val) {
+                this.title = val;
+            },
+            updateDesc(val) {
+                this.desc = val;
+            },
+            updateRepo(val) {
+                this.repo = val;
+            },
+            updateDemo(val) {
+                this.demo = val;
             }
         }
     }

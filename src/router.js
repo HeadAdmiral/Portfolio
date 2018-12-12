@@ -4,6 +4,7 @@ import Home from './views/Home.vue'
 import Projects from './views/Projects.vue'
 import NewProject from './views/NewProject.vue'
 import About from './views/About'
+import Project from './views/Project.vue'
 
 
 
@@ -32,6 +33,11 @@ export default new Router({
             path: '/about',
             name: 'About',
             component: About
+        },
+        {
+            path: '/project/:id',
+            name: 'Project',
+            component: Project
         }
     ]
 })

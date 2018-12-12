@@ -1,27 +1,39 @@
 <template>
   <div class="projects">
     <div v-konami:opts.custom="easterEgg"></div>
-    <v-layout align-center justify-center column fill-height >
+    <v-layout align-center justify-center column fill-height>
       <div v-for="project in projects" :key="project.repo">
-        <v-flex my-3>
-          <v-card width="1000" hover>
-            <v-img :src="project.src" aspect-ratio="2.75" :position=project.position></v-img>
-            <v-card-title primary-title>
-              <div>
-                <h3 class="headline mb-0">{{ project.title }}</h3>
-                <span>{{ project.desc }}</span>
-              </div>
-            </v-card-title>
-            <v-card-actions>
-              <v-btn flat @click=setURL(project.repo)>GitHub</v-btn>
-              <v-btn flat @click=setURL(project.demo) color="accent">Explore</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-flex>
+        <div class="card" :id="project.id">
+          <v-flex my-3  v-show="empty === false">
+            <v-card width="1000" hover>
+              <v-img :src="project.src" aspect-ratio="2.75" :position=project.position></v-img>
+              <v-card-title primary-title>
+                <div>
+                  <h3 class="headline mb-0">{{ project.title }}</h3>
+                  <span>{{ project.desc }}</span>
+                </div>
+              </v-card-title>
+              <v-card-actions>
+                <v-btn flat @click=setURL(project.repo) v-if="konami.allow === false">GitHub</v-btn>
+                <v-btn flat @click=setURL(project.demo) color="accent" v-if="konami.allow === false">Explore</v-btn>
+                <v-btn flat router :to="{ path: 'project/' + project.id }" v-if="konami.allow === true">Edit</v-btn>
+                <v-btn flat @click="deleteProject(project.title, project.id)" color="accent" v-if="konami.allow === true">Delete</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-flex>
+        </div>
       </div>
-      <v-btn fixed fab right bottom class="mx-5 my-4 accent" v-if="edit.allow === true" router :to="edit.route"  transition="fade-transition">
+      <v-btn fixed fab right bottom class="mx-5 my-4 accent" v-if="konami.allow === true" router :to="konami.route" transition="fade-transition">
         <v-icon>add</v-icon>
       </v-btn>
+    </v-layout>
+    <v-layout row align-content-end justify-center ma-5 pa-5 v-show="empty === true">
+      <div class="text-xs-center">
+        <v-avatar justify-center align-content-end size="350" class="mb-5">
+          <v-img src="https://i.imgur.com/RxOYpN3.png"></v-img>
+        </v-avatar>
+        <h3 class="headline mb-0 grey--text text--darken-2">There doesn't seem to be anything here...</h3>
+      </div>
     </v-layout>
   </div>
 </template>
@@ -31,13 +43,18 @@
   export default {
       data() {
           let projects =  this.getProjects();
+          let empty = this.isEmpty();
           return {
               projects,
+              empty,
               opts: {
                   timeout: 3000, // controls how long (in ms) you have to enter the chain correctly
                   chain: '38-38-40-40-37-39-37-39-66-65' // up-up-down-down-left-right-left-right-b-a
               },
               edit: {
+                  route: '/project/'
+              },
+              konami: {
                   allow: false,
                   route: '/newproject'
               }
@@ -48,7 +65,7 @@
               window.open(URL, '_blank');
           },
           easterEgg: function() {
-              this.edit.allow = true;
+              this.konami.allow = true;
           },
           getProjects: function() {
               let docs = [];
@@ -56,13 +73,41 @@
               database.collection('projects').get()
                   .then(function(querySnapshot) {
                     querySnapshot.forEach(function(doc) {
-                        // add each document to the array
+                        // Update the stored ID to match the document's ID
                         docs.push(doc.data())
                     });
                   });
               return docs;
+          },
+          deleteProject: function(project, id) {
+              let confirmDelete = confirm("Do you want to delete " + project + "?");
+              if (confirmDelete) {
+                  let card = document.getElementById(id);
+                  this.remove(card);
+                  database.collection('projects').doc(id).delete().then(function () {
+                      console.log("Document successfully deleted!");
+                  }).catch(function (error) {
+                      console.error("Error removing document: ", error);
+                  });
+              }
+              this.empty = this.isEmpty();
+          },
+          remove: function(element) {
+              element.parentNode.removeChild(element);
+          },
+          isEmpty: function() {
+              if (document.getElementsByClassName("card").length === 0) {
+                  return true;
+              }
+              else if (document.getElementsByClassName("card").length > 0){
+                  return false;
+              }
+
           }
 
+      },
+      updated() {
+          this.empty = this.isEmpty()
       }
   }
 </script>
