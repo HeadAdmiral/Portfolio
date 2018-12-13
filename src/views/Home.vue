@@ -1,6 +1,6 @@
 <template>
     <div class="home">
-        <v-content class="ma-5 pa-5" style="position:absolute; top: 20%; left: 37.5%;">
+        <v-content class="ma-5 pa-5" style="position:absolute; top: 20%; left: 27.5%;">
             <v-container>
                 <v-layout row align-content-end justify-center>
                     <v-flex xs12 md4>

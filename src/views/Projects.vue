@@ -70,7 +70,7 @@
           getProjects: function() {
               let docs = [];
               // Query database for projects collection
-              database.collection('projects').get()
+              database.collection('projects').orderBy("id", "desc").get()
                   .then(function(querySnapshot) {
                     querySnapshot.forEach(function(doc) {
                         // Update the stored ID to match the document's ID

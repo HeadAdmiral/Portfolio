@@ -2,10 +2,10 @@
     <div class="about">
         <v-content >
             <v-container>
-                <v-layout row align-content-end justify-start class="ma-5 pa-5" style="position:absolute; top: 450%; left: 1%;">
+                <v-layout row align-content-end justify-start class="ma-5 pa-5" style="position:absolute; left: 1%;">
                     <v-flex xs12>
                         <div class="text-xs-center">
-                            <v-avatar size="300px">
+                            <v-avatar size="250px">
                                 <v-img class="img-circle elevation-7 mb-2" contain src="https://i.imgur.com/sSNztKu.png"></v-img>
                             </v-avatar>
                             <h5 class="headline">Alex Mastin</h5>

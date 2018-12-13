@@ -13,7 +13,7 @@
                                 required
                                 color="accent"
                                 :value="n.src"
-                                :change="updateSrc(n.src)"
+                                :change="preview === '' ? updateSrc(n.src) : updateSrc"
                         ></v-text-field>
                         <v-select
                                 v-model="position"
@@ -23,7 +23,7 @@
                                 required
                                 color="accent"
                                 :item-value="n.position"
-                                :change="updatePosition(n.position)"
+                                :change="position === '' ? updatePosition(n.position) : updatePosition"
                         ></v-select>
                         <v-text-field
                                 v-model="title"
@@ -34,7 +34,7 @@
                                 required
                                 color="accent"
                                 :value="n.title"
-                                :change="updateTitle(n.title)"
+                                :change="title === '' ? updateTitle(n.title) : updateTitle"
                         ></v-text-field>
                         <v-text-field
                                 v-model="desc"
@@ -44,7 +44,7 @@
                                 required
                                 color="accent"
                                 :value="n.desc"
-                                :change="updateDesc(n.desc)"
+                                :change="desc === '' ? updateDesc(n.desc) : updateDesc"
                         ></v-text-field>
                         <v-text-field
                                 v-model="repo"
@@ -54,7 +54,7 @@
                                 required
                                 color="accent"
                                 :value="n.repo"
-                                :change="updateRepo(n.repo)"
+                                :change="repo === '' ? updateRepo(n.repo) : updateRepo"
                         ></v-text-field>
                         <v-text-field
                                 v-model="demo"
@@ -64,10 +64,10 @@
                                 required
                                 color="accent"
                                 :value="n.demo"
-                                :change="updateDemo(n.demo)"
+                                :change="demo === '' ? updateDemo(n.demo) : updateDemo"
                         ></v-text-field>
                         <v-btn @click=submit color="accent">update</v-btn>
-                        <v-btn @click=clear>clear</v-btn>
+                        <v-btn @click=confirmClear>clear</v-btn>
                     </v-form>
                 </v-card>
             </v-flex>
@@ -150,8 +150,8 @@
                 return docs;
             },
             submit() {
-                if (this.$refs.form.validate()) {
-                    let docID = this.getID();
+                if (this.$refs.form[0].validate()) {
+                    let docID = this.$route.params.id;
                     database.collection('projects').doc(docID).set({
                         title: this.title,
                         desc: this.desc,
@@ -174,6 +174,12 @@
             },
             clear() {
                 this.$refs.form[0].reset();
+            },
+            confirmClear() {
+                let response = confirm("Do you want to clear the form?");
+                if (response) {
+                    this.clear();
+                }
             },
             updateSrc(val) {
                 this.preview = val;
