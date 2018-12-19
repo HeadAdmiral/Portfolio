@@ -29,6 +29,7 @@
         name: "Home",
         methods: {
             setURL: function(URL) {
+                // Open URL in new tab
                 window.open(URL, '_blank');
             }
         }

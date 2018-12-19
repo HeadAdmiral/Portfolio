@@ -62,9 +62,11 @@
       },
       methods: {
           setURL: function(URL) {
+              // Open URL in a new tab
               window.open(URL, '_blank');
           },
           easterEgg: function() {
+              // Allow editing by modifying konami.allow
               this.konami.allow = true;
           },
           getProjects: function() {
@@ -80,10 +82,15 @@
               return docs;
           },
           deleteProject: function(project, id) {
+              // Show confirm dialog, and delete project if user select's 'OK'
               let confirmDelete = confirm("Do you want to delete " + project + "?");
               if (confirmDelete) {
+                  // Get element in DOM
                   let card = document.getElementById(id);
+                  // Remove element from DOM
                   this.remove(card);
+
+                  // Remove element from database
                   database.collection('projects').doc(id).delete().then(function () {
                       console.log("Document successfully deleted!");
                   }).catch(function (error) {
@@ -93,9 +100,12 @@
               this.empty = this.isEmpty();
           },
           remove: function(element) {
+              // Removes element from DOM
               element.parentNode.removeChild(element);
           },
           isEmpty: function() {
+              // Returns true if there are no elements with a class value of 'card' on the page
+              // ie. If there are no projects, returns true. Else false.
               if (document.getElementsByClassName("card").length === 0) {
                   return true;
               }
@@ -107,6 +117,7 @@
 
       },
       updated() {
+          // Checks if projects are on the page each time the page is updated.
           this.empty = this.isEmpty()
       }
   }

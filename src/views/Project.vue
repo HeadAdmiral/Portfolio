@@ -150,8 +150,11 @@
                 return docs;
             },
             submit() {
+                // If form is valid...
                 if (this.$refs.form[0].validate()) {
+                    // Get current route's id
                     let docID = this.$route.params.id;
+                    // Update database
                     database.collection('projects').doc(docID).set({
                         title: this.title,
                         desc: this.desc,
@@ -173,9 +176,11 @@
                 }
             },
             clear() {
+                // Reset form
                 this.$refs.form[0].reset();
             },
             confirmClear() {
+                // Show confirm dialog, and clear form if user selects 'OK'
                 let response = confirm("Do you want to clear the form?");
                 if (response) {
                     this.clear();
